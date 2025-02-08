@@ -1,0 +1,74 @@
+# LeetCode Problem: 295. Find Median from Data Stream
+# Problem Link: https://leetcode.com/problems/find-median-from-data-stream/
+
+
+# APPROACH 1: Using Queue
+class MedianFinder:
+    def __init__(self):
+        self.maxHeap = [] 
+        self.minHeap = [] 
+
+    def addNum(self, num: int) -> None:
+        if len(self.minHeap) == len(self.maxHeap) == 0:
+            heappush(self.minHeap, num)
+        elif self.minHeap[0] >= num:
+            heappush(self.maxHeap, -num)
+        else:
+            heappush(self.minHeap, num)
+
+        if len(self.minHeap) - len(self.maxHeap) > 1:
+            heappush(self.maxHeap, -heappop(self.minHeap))
+
+        if len(self.maxHeap) - len(self.minHeap) > 1:
+            heappush(self.minHeap, -heappop(self.maxHeap))
+
+    def findMedian(self) -> float:
+        if (len(self.minHeap) + len(self.maxHeap)) % 2 == 1:
+            if len(self.minHeap) > len(self.maxHeap):
+                return self.minHeap[0]
+            else:
+                return -self.maxHeap[0]
+        else:
+            return (self.minHeap[0] - self.maxHeap[0]) / 2.0
+
+
+# APPROACH 2: Using binary search
+
+class MedianFinder:
+
+    def __init__(self):
+        self.nums=[]
+
+    def addNum(self, num: int) -> None:
+        if not self.nums:
+            self.nums.append(num)
+        def binary_search(nums,key):
+            l = 0
+            r = len(nums)-1
+            if l==r:
+                return l
+            while(l<=r):
+                mid = l+ (r-l)//2
+                if nums[mid]==key:
+                    return mid
+                elif nums[mid]<key:
+                    l = mid+1
+                elif nums[mid]>key:
+                    r = mid-1
+            return l
+        l = binary_search(self.nums,num)
+
+        if len(self.nums)==1:
+            if self.nums[0]>num:
+                self.nums.insert(l,num)
+            elif self.nums[0]<num:
+                self.nums.append(num)
+        else:
+            self.nums.insert(l,num)
+
+    def findMedian(self) -> float:
+        n = len(self.nums)
+        if n % 2 == 0:
+            return (self.nums[n//2 - 1] + self.nums[n//2]) / 2.0
+        else:
+            return self.nums[n//2]
